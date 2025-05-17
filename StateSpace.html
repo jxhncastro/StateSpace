@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOWER OF HANOI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #f0f4f8;
+        }
+        h1 {
+            font-size: 32px;
+            color: #fd0e0e;
+        }
+        h2 {
+            font-size: 20px;
+            color: #2c1c64;
+            margin-bottom: 30px;
+        }
+        .peg {
+            display: inline-block;
+            width: 120px;
+            height: 300px;
+            background-color: #364246;
+            border: 3px solid #0799fa;
+            border-radius: 10px;
+            margin: 20px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .disk {
+            position: absolute;
+            height: 25px;
+            background: linear-gradient(135deg, #e756fa, #2980b9);
+            border-radius: 5px;
+            cursor: grab;
+            border: 2px solid #5588e6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #steps {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .highlight {
+            border-color: #27ae60;
+            box-shadow: 0 0 10px #27ae60;
+        }
+        button {
+            background-color: #2148f7;
+            background: linear-gradient(135deg, #e756fa, #2980b9);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <h1>TOWER OF HANOI</h1>
+    <h2>Move the disks from Peg A --> Peg B</h2>
+    
+    <div>
+        <div class="peg" id="pegA" onclick="selectPeg('A')"></div>
+        <div class="peg" id="pegB" onclick="selectPeg('B')"></div>
+        <div class="peg" id="pegC" onclick="selectPeg('C')"></div>
+    </div>
+
+    <button onclick="resetGame()">RESET GAME</button>
+    
+    <div id="steps">Select a peg to move a disk.</div>
+
+    <script>
+        const totalDisks = 4;
+        let selectedPeg = null;
+        let moves = 0;
+        
+        function resetGame() {
+            moves = 0;
+            selectedPeg = null;
+            document.getElementById("steps").innerHTML = "Select a peg to move a disk.";
+            resetPegs();
+        }
+
+        function resetPegs() {
+            document.getElementById('pegA').innerHTML = '';
+            document.getElementById('pegB').innerHTML = '';
+            document.getElementById('pegC').innerHTML = '';
+
+            for (let i = totalDisks; i > 0; i--) {
+                let disk = document.createElement('div');
+                disk.className = 'disk';
+                disk.style.width = `${20 + i * 20}px`;
+                disk.style.bottom = `${(totalDisks - i) * 25}px`;
+                disk.style.left = '0';
+                disk.setAttribute('data-size', i); 
+                document.getElementById('pegA').appendChild(disk);
+            }
+        }
+
+        function selectPeg(pegId) {
+            const pegElement = document.getElementById('peg' + pegId);
+
+            if (!selectedPeg) {
+                if (pegElement.childElementCount > 0) {
+                    selectedPeg = pegId;
+                    pegElement.classList.add("highlight");
+                }
+            } else {
+                if (moveDisk(selectedPeg, pegId)) {
+                    moves++;
+                    checkWin();
+                } else {
+                    document.getElementById("steps").innerHTML = "INVALID MOVE!";
+                }
+                document.getElementById('peg' + selectedPeg).classList.remove("highlight");
+                selectedPeg = null;
+            }
+        }
+
+        function moveDisk(fromPeg, toPeg) {
+            const fromPegElement = document.getElementById('peg' + fromPeg);
+            const toPegElement = document.getElementById('peg' + toPeg);
+
+            if (fromPeg === toPeg) return false;
+
+            const fromDisk = fromPegElement.lastElementChild;
+            const toDisk = toPegElement.lastElementChild;
+
+            if (!fromDisk) return false;
+
+            const fromDiskSize = parseInt(fromDisk.getAttribute('data-size'));
+            const toDiskSize = toDisk ? parseInt(toDisk.getAttribute('data-size')) : Infinity;
+
+            if (fromDiskSize < toDiskSize) {
+                fromPegElement.removeChild(fromDisk);
+                let toPegDisks = toPegElement.childElementCount;
+                fromDisk.style.bottom = `${toPegDisks * 25}px`;
+                toPegElement.appendChild(fromDisk);
+                return true;
+            }
+            return false;
+        }
+
+        function checkWin() {
+            const pegB = document.getElementById('pegB');
+            if (pegB.childElementCount === totalDisks) {
+                document.getElementById("steps").innerHTML = `Good Job! You've solved it in ${moves} moves!`;
+            }
+        }
+
+        resetGame();
+    </script>
+
+</body>
+</html>
